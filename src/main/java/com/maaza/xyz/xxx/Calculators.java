@@ -54,28 +54,37 @@ public final class Calculators {
 			final float[] real = x.data;
 			final float[] pred = y.data;
 			final float[] grad = z.data;
-			final int size = real.length;
-			float max = pred[0];
-			for (int i = 1; i < size; i++) {
-				max = Math.max(max, pred[i]);
-			}
-			float sum = 0.0f;
-			for (int i = 0; i < size; i++) {
-				final float exp = (float) Math.exp(pred[i] - max);
-				grad[i] = exp;
-				sum += exp;
-			}
-			final float log = (float) Math.log(sum);
-			final float fact = 1.0f / sum;
+			final int[] size = x.size;
+			final int cols = size[size.length - 1];
+			final int rows = real.length / cols;
+			final float fact = 1.0f / rows;
 			float loss = 0.0f;
-			for (int i = 0; i < size; i++) {
-				final float smx = grad[i] * fact;
-				if (real[i] > 0.0f) {
-					loss -= real[i] * ((pred[i] - max) - log);
+			for (int j = 0; j < rows; j++) {
+				final int off = j * cols;
+				float max = pred[off];
+				for (int i = 1; i < cols; i++) {
+					final int k = off + i;
+					max = Math.max(max, pred[k]);
 				}
-				grad[i] = smx - real[i];
+				float sum = 0.0f;
+				for (int i = 0; i < cols; i++) {
+					final int k = off + i;
+					final float exp = (float) Math.exp(pred[k] - max);
+					grad[k] = exp;
+					sum += exp;
+				}
+				final float log = (float) Math.log(sum);
+				final float mul = 1.0f / sum;
+				for (int i = 0; i < cols; i++) {
+					final int k = off + i;
+					final float smx = grad[k] * mul;
+					if (real[k] > 0.0f) {
+						loss -= real[k] * ((pred[k] - max) - log);
+					}
+					grad[k] = (smx - real[k]) * fact;
+				}
 			}
-			return loss;
+			return loss * fact;
 		};
 	}
 }
