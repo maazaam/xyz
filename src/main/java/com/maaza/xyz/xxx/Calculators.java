@@ -11,14 +11,14 @@ public final class Calculators {
 			final float[] pred = y.data;
 			final float[] grad = z.data;
 			final int size = real.length;
-			final float fact = 2.0f / size;
+			final float fact = 1.0f / size;
 			float loss = 0.0f;
 			for (int i = 0; i < size; i++) {
 				final float dif = pred[i] - real[i];
 				loss += dif * dif;
 				grad[i] = dif * fact;
 			}
-			return loss / size;
+			return 0.5f * loss * fact;
 		};
 	}
 
@@ -37,12 +37,8 @@ public final class Calculators {
 				final float exp = (float) Math.exp(-Math.abs(p));
 				final float log = (float) Math.log1p(exp);
 				loss += max - p * r + log;
-				float sig = 0.0f;
-				if (p >= 0.0f) {
-					sig = 1.0f / (1.0f + exp);
-				} else {
-					sig = exp / (1.0f + exp);
-				}
+				final float inv = 1.0f / (1.0f + exp);
+				final float sig = p >= 0.0f ? inv : exp * inv;
 				grad[i] = (sig - r) * fact;
 			}
 			return loss * fact;
@@ -61,27 +57,26 @@ public final class Calculators {
 			float loss = 0.0f;
 			for (int j = 0; j < rows; j++) {
 				final int off = j * cols;
+				final int end = off + cols;
 				float max = pred[off];
-				for (int i = 1; i < cols; i++) {
-					final int k = off + i;
-					max = Math.max(max, pred[k]);
+				for (int i = off + 1; i < end; i++) {
+					max = Math.max(max, pred[i]);
 				}
 				float sum = 0.0f;
-				for (int i = 0; i < cols; i++) {
-					final int k = off + i;
-					final float exp = (float) Math.exp(pred[k] - max);
-					grad[k] = exp;
+				for (int i = off; i < end; i++) {
+					final float exp = (float) Math.exp(pred[i] - max);
+					grad[i] = exp;
 					sum += exp;
 				}
 				final float log = (float) Math.log(sum);
-				final float mul = 1.0f / sum;
-				for (int i = 0; i < cols; i++) {
-					final int k = off + i;
-					final float smx = grad[k] * mul;
-					if (real[k] > 0.0f) {
-						loss -= real[k] * ((pred[k] - max) - log);
+				final float inv = 1.0f / sum;
+				for (int i = off; i < end; i++) {
+					final float r = real[i];
+					final float smx = grad[i] * inv;
+					if (r > 0.0f) {
+						loss += r * (log - (pred[i] - max));
 					}
-					grad[k] = (smx - real[k]) * fact;
+					grad[i] = (smx - r) * fact;
 				}
 			}
 			return loss * fact;
