@@ -41,8 +41,8 @@ public final class Initializers {
 		};
 	}
 
-	public static final Initializer xavi(final int row, final int col) {
-		final float val = (float) Math.sqrt(6.0f / (row + col));
+	public static final Initializer xavi(final int in, final int out) {
+		final float val = (float) Math.sqrt(6.0f / (in + out));
 		final RandomGenerator rng = FACT.create();
 		return (x) -> {
 			for (int i = 0; i < x.length; i++) {
@@ -51,8 +51,8 @@ public final class Initializers {
 		};
 	}
 
-	public static final Initializer kaim(final int row) {
-		final float val = (float) Math.sqrt(2.0f / row);
+	public static final Initializer kaim(final int in) {
+		final float val = (float) Math.sqrt(2.0f / in);
 		final RandomGenerator rng = FACT.create();
 		return (x) -> {
 			for (int i = 0; i < x.length; i++) {
