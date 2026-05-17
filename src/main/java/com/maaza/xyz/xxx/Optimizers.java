@@ -40,7 +40,6 @@ public final class Optimizers {
 				for (int i = 0; i < size; i++) {
 					final float vi = v[i] = beta * v[i] + bm * grad[i];
 					data[i] -= rate * vi;
-					grad[i] = 0.0f;
 				}
 			}
 		};
@@ -70,7 +69,6 @@ public final class Optimizers {
 					final float mi = m[i] = beta1 * m[i] + b1m * gi;
 					final float vi = v[i] = beta2 * v[i] + b2m * gi * gi;
 					data[i] -= alpha * mi / ((float) Math.sqrt(vi) + eps);
-					grad[i] = 0.0f;
 				}
 			}
 		};
