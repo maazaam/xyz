@@ -8,7 +8,7 @@ public final class Array {
 	public Array(final int... size) {
 		this.size = size.clone();
 		int span = 1;
-		for (final int item : size) {
+		for (final int item : this.size) {
 			span *= item;
 		}
 		this.data = new float[span];

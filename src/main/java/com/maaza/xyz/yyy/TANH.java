@@ -5,7 +5,7 @@ import com.maaza.xyz.xxx.Param;
 
 public final class TANH implements Layer {
 
-	private static final Param[] PARAMS = new Param[0];
+	private static final Param[] PARAMS = {};
 
 	private Array cache;
 
