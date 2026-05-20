@@ -32,7 +32,7 @@ public final class Dense implements Layer {
 		final float[] w = this.weight.data.data;
 		final int in = this.in;
 		final int out = this.out;
-		final int size = x.length / this.in;
+		final int size = x.length / in;
 		for (int k = 0; k < size; k++) {
 			final int xoff = k * in;
 			final int yoff = k * out;
@@ -56,7 +56,7 @@ public final class Dense implements Layer {
 		final float[] w = this.weight.data.data;
 		final int in = this.in;
 		final int out = this.out;
-		final int size = x.length / this.in;
+		final int size = x.length / in;
 		for (int k = 0; k < size; k++) {
 			final int xoff = k * in;
 			final int yoff = k * out;
