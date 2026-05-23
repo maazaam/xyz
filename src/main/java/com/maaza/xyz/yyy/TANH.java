@@ -14,7 +14,8 @@ public final class TANH implements Layer {
 		this.cache = output;
 		final float[] x = input.data;
 		final float[] y = output.data;
-		for (int i = 0; i < x.length; i++) {
+		final int size = x.length;
+		for (int i = 0; i < size; i++) {
 			y[i] = (float) Math.tanh(x[i]);
 		}
 	}
@@ -24,10 +25,12 @@ public final class TANH implements Layer {
 		final float[] y = this.cache.data;
 		final float[] dy = output.data;
 		final float[] dx = input.data;
-		for (int i = 0; i < y.length; i++) {
+		final int size = dy.length;
+		for (int i = 0; i < size; i++) {
 			final float yi = y[i];
-			dx[i] = dy[i] * (1.0f - yi * yi);
+			dx[i] += dy[i] * (1.0f - yi * yi);
 		}
+		this.cache = null;
 	}
 
 	@Override

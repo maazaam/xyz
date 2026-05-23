@@ -16,8 +16,9 @@ public final class LELU implements Layer {
 		this.cache = input;
 		final float[] x = input.data;
 		final float[] y = output.data;
+		final int size = x.length;
 		final float alpha = ALPHA;
-		for (int i = 0; i < x.length; i++) {
+		for (int i = 0; i < size; i++) {
 			final float xi = x[i];
 			y[i] = Math.max(alpha * xi, xi);
 		}
@@ -28,11 +29,13 @@ public final class LELU implements Layer {
 		final float[] x = this.cache.data;
 		final float[] dx = input.data;
 		final float[] dy = output.data;
+		final int size = dy.length;
 		final float alpha = ALPHA;
-		for (int i = 0; i < x.length; i++) {
+		for (int i = 0; i < size; i++) {
 			final float dyi = dy[i];
-			dx[i] = x[i] > 0.0f ? dyi : alpha * dyi;
+			dx[i] += x[i] > 0.0f ? dyi : alpha * dyi;
 		}
+		this.cache = null;
 	}
 
 	@Override

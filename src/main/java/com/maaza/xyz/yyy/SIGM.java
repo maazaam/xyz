@@ -14,8 +14,12 @@ public final class SIGM implements Layer {
 		this.cache = output;
 		final float[] x = input.data;
 		final float[] y = output.data;
-		for (int i = 0; i < x.length; i++) {
-			y[i] = 1.0f / (1.0f + (float) Math.exp(-x[i]));
+		final int size = x.length;
+		for (int i = 0; i < size; i++) {
+			final float xi = x[i];
+			final float exp = (float) Math.exp(-Math.abs(xi));
+			final float inv = 1.0f / (1.0f + exp);
+			y[i] = xi >= 0.0f ? inv : exp * inv;
 		}
 	}
 
@@ -24,10 +28,12 @@ public final class SIGM implements Layer {
 		final float[] y = this.cache.data;
 		final float[] dy = output.data;
 		final float[] dx = input.data;
-		for (int i = 0; i < y.length; i++) {
+		final int size = dy.length;
+		for (int i = 0; i < size; i++) {
 			final float yi = y[i];
-			dx[i] = dy[i] * yi * (1.0f - yi);
+			dx[i] += dy[i] * yi * (1.0f - yi);
 		}
+		this.cache = null;
 	}
 
 	@Override

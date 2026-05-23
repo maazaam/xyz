@@ -22,6 +22,26 @@ public final class Calculators {
 		};
 	}
 
+	public static final Calculator bce() {
+		final float eps = 1.0e-7f;
+		return (x, y, z) -> {
+			final float[] real = x.data;
+			final float[] pred = y.data;
+			final float[] grad = z.data;
+			final int size = real.length;
+			final float fact = 1.0f / size;
+			float loss = 0.0f;
+			for (int i = 0; i < size; i++) {
+				final float r = real[i];
+				final float val = Math.max(eps, Math.min(1.0f - eps, pred[i]));
+				final float inv = 1.0f - val;
+				loss += r * (float) Math.log(val) + (1.0f - r) * (float) Math.log(inv);
+				grad[i] = (val - r) / (val * inv) * fact;
+			}
+			return -loss * fact;
+		};
+	}
+
 	public static final Calculator bin() {
 		return (x, y, z) -> {
 			final float[] real = x.data;

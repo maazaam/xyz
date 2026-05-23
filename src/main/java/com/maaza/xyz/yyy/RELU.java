@@ -14,7 +14,8 @@ public final class RELU implements Layer {
 		this.cache = input;
 		final float[] x = input.data;
 		final float[] y = output.data;
-		for (int i = 0; i < x.length; i++) {
+		final int size = x.length;
+		for (int i = 0; i < size; i++) {
 			y[i] = Math.max(0.0f, x[i]);
 		}
 	}
@@ -24,9 +25,11 @@ public final class RELU implements Layer {
 		final float[] x = this.cache.data;
 		final float[] dx = input.data;
 		final float[] dy = output.data;
-		for (int i = 0; i < x.length; i++) {
-			dx[i] = x[i] > 0.0f ? dy[i] : 0.0f;
+		final int size = dy.length;
+		for (int i = 0; i < size; i++) {
+			dx[i] += x[i] > 0.0f ? dy[i] : 0.0f;
 		}
+		this.cache = null;
 	}
 
 	@Override
