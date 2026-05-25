@@ -39,6 +39,11 @@ public final class LELU implements Layer {
 	}
 
 	@Override
+	public final int[] shape(final int... size) {
+		return size.clone();
+	}
+
+	@Override
 	public final Param[] params() {
 		return PARAMS;
 	}

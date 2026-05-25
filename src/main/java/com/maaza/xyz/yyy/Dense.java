@@ -72,6 +72,13 @@ public final class Dense implements Layer {
 	}
 
 	@Override
+	public final int[] shape(final int... size) {
+		final int[] shape = size.clone();
+		shape[shape.length - 1] = this.out;
+		return shape;
+	}
+
+	@Override
 	public final Param[] params() {
 		return this.params;
 	}

@@ -9,5 +9,7 @@ public interface Layer {
 
 	public void backward(Array output, Array input);
 
+	public int[] shape(int... size);
+
 	public Param[] params();
 }

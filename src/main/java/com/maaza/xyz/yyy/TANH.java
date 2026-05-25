@@ -37,4 +37,9 @@ public final class TANH implements Layer {
 	public final Param[] params() {
 		return PARAMS;
 	}
+
+	@Override
+	public final int[] shape(final int... size) {
+		return size.clone();
+	}
 }
