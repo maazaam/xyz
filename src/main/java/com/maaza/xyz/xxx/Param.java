@@ -4,7 +4,7 @@ public final class Param {
 
 	public final Array data;
 	public final Array grad;
-	public Object state;
+	public State state;
 
 	public Param(final int... size) {
 		this.data = new Array(size);

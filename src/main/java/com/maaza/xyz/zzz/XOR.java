@@ -49,11 +49,11 @@ public final class XOR {
 
 				new int[] { 4, 2 },
 
-				new Dense(2, 8, Initializers.fill(0.0f), Initializers.xavi(2, 8)),
+				new Dense(2, 8, Initializers.fill(0.0f), Initializers.xavi()),
 
 				new TANH(),
 
-				new Dense(8, 1, Initializers.fill(0.0f), Initializers.xavi(8, 1)));
+				new Dense(8, 1, Initializers.fill(0.0f), Initializers.xavi()));
 
 		// optimizer
 

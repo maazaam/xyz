@@ -19,8 +19,8 @@ public final class Dense implements Layer {
 		this.bias = new Param(this.out);
 		this.weight = new Param(this.out, this.in);
 		this.params = new Param[] { this.bias, this.weight };
-		biasInit.init(this.bias.data.data);
-		weightInit.init(this.weight.data.data);
+		biasInit.init(this.bias.data);
+		weightInit.init(this.weight.data);
 	}
 
 	@Override

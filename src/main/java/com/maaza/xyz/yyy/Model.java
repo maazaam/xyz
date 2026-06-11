@@ -26,11 +26,11 @@ public final class Model {
 			System.arraycopy(src, 0, this.param, off, len);
 			off += len;
 		}
-		final int len = this.layer.length;
+		final int len = this.layer.length - 1;
 		this.data = new Array[len];
 		this.grad = new Array[len];
 		int[] shape = size.clone();
-		for (int i = 0; i < len - 1; i++) {
+		for (int i = 0; i < len; i++) {
 			shape = this.layer[i].shape(shape);
 			this.data[i] = new Array(shape);
 			this.grad[i] = new Array(shape);
@@ -66,9 +66,7 @@ public final class Model {
 			Arrays.fill(item.grad.data, 0.0f);
 		}
 		for (final Array item : this.grad) {
-			if (item != null) {
-				Arrays.fill(item.data, 0.0f);
-			}
+			Arrays.fill(item.data, 0.0f);
 		}
 	}
 

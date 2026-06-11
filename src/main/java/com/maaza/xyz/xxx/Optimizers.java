@@ -5,7 +5,7 @@ public final class Optimizers {
 	private Optimizers() {
 	}
 
-	private static final class MntmState {
+	private static final class MntmState implements State {
 
 		private final float[] v;
 
@@ -14,7 +14,7 @@ public final class Optimizers {
 		}
 	}
 
-	private static final class AdamState {
+	private static final class AdamState implements State {
 
 		private final float[] m;
 		private final float[] v;
