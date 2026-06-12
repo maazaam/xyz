@@ -69,6 +69,7 @@ public final class Dense implements Layer {
 				}
 			}
 		}
+		this.cache = null;
 	}
 
 	@Override
