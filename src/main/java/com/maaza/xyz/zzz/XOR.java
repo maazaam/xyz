@@ -3,130 +3,155 @@ package com.maaza.xyz.zzz;
 import com.maaza.xyz.xxx.Array;
 import com.maaza.xyz.xxx.Calculator;
 import com.maaza.xyz.xxx.Calculators;
+import com.maaza.xyz.xxx.Initializer;
 import com.maaza.xyz.xxx.Initializers;
 import com.maaza.xyz.xxx.Optimizer;
 import com.maaza.xyz.xxx.Optimizers;
+import com.maaza.xyz.xxx.Param;
 import com.maaza.xyz.yyy.Dense;
 import com.maaza.xyz.yyy.Model;
 import com.maaza.xyz.yyy.TANH;
 
 public final class XOR {
 
-	public static final void main(final String[] args) {
-		// XOR inputs
-		//
-		// [0,0] -> 0
-		// [0,1] -> 1
-		// [1,0] -> 1
-		// [1,1] -> 0
+	private static final void benchmark(final Runnable task, final String name, final int warmup, final int measure) {
 
-		final Array input = new Array(4, 2);
+		System.out.printf("%n========== Benchmark: %s ==========%n", name);
+		System.out.printf("Warmup: %d, Measure: %d%n%n", warmup, measure);
 
-		input.data[0] = 0.0f;
-		input.data[1] = 0.0f;
+		for (int i = 0; i < warmup; i++) {
+			task.run();
+		}
 
-		input.data[2] = 0.0f;
-		input.data[3] = 1.0f;
+		final Runtime runtime = Runtime.getRuntime();
 
-		input.data[4] = 1.0f;
-		input.data[5] = 0.0f;
+		long totalTime = 0;
+		long totalMemory = 0;
 
-		input.data[6] = 1.0f;
-		input.data[7] = 1.0f;
+		for (int i = 0; i < measure; i++) {
 
-		// XOR targets
+			System.gc();
 
-		final Array target = new Array(4, 1);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 
-		target.data[0] = 0.0f;
-		target.data[1] = 1.0f;
-		target.data[2] = 1.0f;
-		target.data[3] = 0.0f;
+			final long before = runtime.totalMemory() - runtime.freeMemory();
+			final long start = System.nanoTime();
 
-		// model
+			task.run();
+
+			final long stop = System.nanoTime();
+			final long after = runtime.totalMemory() - runtime.freeMemory();
+
+			final long time = stop - start;
+			final long memory = after - before;
+
+			System.out.printf("Run %2d | Time: %.3f ms | Memory: %.2f kb%n", i + 1, time / 1_000_000.0, memory / 1_024.0);
+
+			totalTime += time;
+			totalMemory += memory;
+
+		}
+
+		final double averageTime = totalTime / (measure * 1_000_000.0);
+		final double averageMemory = totalMemory / (measure * 1_024.0);
+
+		System.out.printf("%nAverage Time   : %.3f ms", averageTime);
+		System.out.printf("%nAverage Memory : %.2f kb%n", averageMemory);
+
+	}
+
+	private static final void task() {
+
+		final int bs = 4;
+
+		final int in = 2;
+		final int hn = 4;
+		final int on = 1;
+
+		final Array x = new Array(bs, in);
+		x.data[0] = 0.0f;
+		x.data[1] = 0.0f;
+		x.data[2] = 0.0f;
+		x.data[3] = 1.0f;
+		x.data[4] = 1.0f;
+		x.data[5] = 0.0f;
+		x.data[6] = 1.0f;
+		x.data[7] = 1.0f;
+
+		final Array z = new Array(bs, on);
+		z.data[0] = 0.0f;
+		z.data[1] = 1.0f;
+		z.data[2] = 1.0f;
+		z.data[3] = 0.0f;
+
+		final Initializer fill = Initializers.fill(0.0f);
+		final Initializer xavi = Initializers.xavi();
 
 		final Model model = new Model(
 
-				new int[] { 4, 2 },
+				new int[] { bs, in },
 
-				new Dense(2, 8, Initializers.fill(0.0f), Initializers.xavi()),
+				new Dense(in, hn, fill, xavi),
 
 				new TANH(),
 
-				new Dense(8, 1, Initializers.fill(0.0f), Initializers.xavi()));
+				new Dense(hn, on, fill, xavi));
 
-		// optimizer
+		final Optimizer opti = Optimizers.adam(0.01f, 0.9f, 0.999f);
 
-		final Optimizer opt = Optimizers.adam(0.01f, 0.9f, 0.999f);
+		final Calculator calc = Calculators.bin();
 
-		// loss
+		final Array y = new Array(bs, on);
+		final Array dy = new Array(bs, on);
+		final Array dx = new Array(bs, in);
 
-		final Calculator loss = Calculators.bin();
-
-		// output tensor
-
-		final Array output = new Array(4, 1);
-
-		// output gradient tensor
-
-		final Array grad = new Array(4, 1);
-
-		// input gradient tensor
-
-		final Array dx = new Array(4, 2);
-
-		// train
+		final Param[] pms = model.params();
 
 		final int epochs = 10000;
 
 		for (int epoch = 0; epoch < epochs; epoch++) {
 
-			// clear previous gradients
-
 			model.clear();
 
-			// forward
+			model.forward(x, y);
 
-			model.forward(input, output);
+			final float loss = calc.loss(z, y, dy);
 
-			// compute loss + output gradients
+			model.backward(dy, dx);
 
-			final float val = loss.loss(target, output, grad);
+			opti.step(pms);
 
-			// backward
-
-			model.backward(grad, dx);
-
-			// optimizer step
-
-			opt.step(model.params());
-
-			// print progress
-
-			if (epoch % 1000 == 0) {
-
-				System.out.printf("epoch=%d loss=%.6f%n", epoch, val);
+			if (epoch % 500 == 0) {
+				System.out.printf("epoch=%d loss=%.6f%n", epoch, loss);
 			}
-		}
 
-		// final predictions
+		}
 
 		System.out.println();
-		System.out.println("predictions:");
+		System.out.println("Predictions:");
 
-		model.forward(input, output);
+		model.forward(x, y);
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < bs; i++) {
 
-			final float x0 = input.data[i * 2];
+			final float x0 = x.data[i * 2];
+			final float x1 = x.data[i * 2 + 1];
 
-			final float x1 = input.data[i * 2 + 1];
+			final float y0 = y.data[i];
+			final float y1 = 1.0f / (1.0f + (float) Math.exp(-y0));
 
-			final float y = output.data[i];
+			System.out.printf("[%.0f %.0f] -> %.6f%n", x0, x1, y1);
 
-			final float p = 1.0f / (1.0f + (float) Math.exp(-y));
-
-			System.out.printf("%.0f xor %.0f -> %.6f%n", x0, x1, p);
 		}
+
+	}
+
+	public static final void main(final String[] args) {
+		// task();
+		benchmark(() -> task(), "xor", 10, 5);
 	}
 }
