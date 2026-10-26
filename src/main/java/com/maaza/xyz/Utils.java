@@ -7,6 +7,7 @@ import java.util.random.RandomGeneratorFactory;
 public final class Utils {
 
 	private static final RandomGeneratorFactory<RandomGenerator> FACT = RandomGeneratorFactory.of("L64X128MixRandom");
+	private static final float EPS1 = 1.0e-7f;
 
 	private Utils() {
 	}
@@ -85,5 +86,55 @@ public final class Utils {
 
 	public static final float deri_tanh(final float val) {
 		return 1.0f - val * val;
+	}
+
+	public static final float loss_mse(final float[] rel, final float[] prd) {
+		float sum = 0.0f;
+		for (int i = 0; i < rel.length; i++) {
+			final float dif = rel[i] - prd[i];
+			sum += dif * dif;
+		}
+		return sum / rel.length;
+	}
+
+	public static final float loss_bce(final float[] rel, final float[] prd) {
+		float sum = 0.0f;
+		for (int i = 0; i < rel.length; i++) {
+			final float ri = rel[i];
+			final float pi = Math.max(EPS1, Math.min(1.0f - EPS1, prd[i]));
+			sum -= ri * (float) Math.log(pi) + (1.0f - ri) * (float) Math.log(1.0f - pi);
+		}
+		return sum / rel.length;
+	}
+
+	public static final float loss_bin(final float[] rel, final float[] prd) {
+		return 0;
+	}
+
+	public static final float loss_mul(final float[] rel, final float[] prd, final int bat, final int cls) {
+		return 0;
+	}
+
+	public static final void grad_mse(final float[] rel, final float[] prd, final float[] grd) {
+		final float mul = 2.0f / rel.length;
+		for (int i = 0; i < rel.length; i++) {
+			final float dif = prd[i] - rel[i];
+			grd[i] = dif * mul;
+		}
+	}
+
+	public static final void grad_bce(final float[] rel, final float[] prd, final float[] grd) {
+		final float mul = 1.0f / rel.length;
+		for (int i = 0; i < rel.length; i++) {
+			final float ri = rel[i];
+			final float pi = Math.max(EPS1, Math.min(1.0f - EPS1, prd[i]));
+			grd[i] = (pi - ri) / (pi * (1.0f - pi)) * mul;
+		}
+	}
+
+	public static final void grad_bin(final float[] rel, final float[] prd, final float[] grd) {
+	}
+
+	public static final void grad_mul(final float[] rel, final float[] prd, final float[] grd, final int bat, final int cls) {
 	}
 }
