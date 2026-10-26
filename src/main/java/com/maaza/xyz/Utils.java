@@ -37,7 +37,7 @@ public final class Utils {
 
 	public static final void init_rndu(final float[] arr, final float min, final float max, final RandomGenerator rng) {
 		for (int i = 0; i < arr.length; i++) {
-			arr[i] = (float) rng.nextDouble(min, max);
+			arr[i] = rng.nextFloat(min, max);
 		}
 	}
 
