@@ -56,4 +56,28 @@ public final class Utils {
 		final float val = (float) Math.sqrt(2.0f / row);
 		init_rndn(arr, 0.0f, val, rng);
 	}
+
+	public static final float acti_relu(final float val) {
+		return Math.max(0.0f, val);
+	}
+
+	public static final float acti_sigm(final float val) {
+		return 1.0f / (1.0f + (float) Math.exp(-val));
+	}
+
+	public static final float acti_tanh(final float val) {
+		return (float) Math.tanh(val);
+	}
+
+	public static final float deri_relu(final float val) {
+		return val > 0.0f ? 1.0f : 0.0f;
+	}
+
+	public static final float deri_sigm(final float val) {
+		return val * (1.0f - val);
+	}
+
+	public static final float deri_tanh(final float val) {
+		return 1.0f - val * val;
+	}
 }
