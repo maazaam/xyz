@@ -91,8 +91,8 @@ public final class Utils {
 	public static final float loss_mse(final float[] rel, final float[] prd) {
 		float sum = 0.0f;
 		for (int i = 0; i < rel.length; i++) {
-			final float dif = rel[i] - prd[i];
-			sum += dif * dif;
+			final float di = rel[i] - prd[i];
+			sum += di * di;
 		}
 		return sum / rel.length;
 	}
@@ -102,13 +102,19 @@ public final class Utils {
 		for (int i = 0; i < rel.length; i++) {
 			final float ri = rel[i];
 			final float pi = Math.max(EPS1, Math.min(1.0f - EPS1, prd[i]));
-			sum -= ri * (float) Math.log(pi) + (1.0f - ri) * (float) Math.log(1.0f - pi);
+			sum -= ri * (float) Math.log(pi) + (1.0f - ri) * (float) Math.log1p(-pi);
 		}
 		return sum / rel.length;
 	}
 
 	public static final float loss_bin(final float[] rel, final float[] prd) {
-		return 0;
+		float sum = 0.0f;
+		for (int i = 0; i < rel.length; i++) {
+			final float ri = rel[i];
+			final float pi = prd[i];
+			sum += Math.max(0.0f, pi) - pi * ri + (float) Math.log1p(Math.exp(-Math.abs(pi)));
+		}
+		return sum / rel.length;
 	}
 
 	public static final float loss_mul(final float[] rel, final float[] prd, final int bat, final int cls) {
@@ -118,8 +124,8 @@ public final class Utils {
 	public static final void grad_mse(final float[] rel, final float[] prd, final float[] grd) {
 		final float mul = 2.0f / rel.length;
 		for (int i = 0; i < rel.length; i++) {
-			final float dif = prd[i] - rel[i];
-			grd[i] = dif * mul;
+			final float di = prd[i] - rel[i];
+			grd[i] = di * mul;
 		}
 	}
 
@@ -133,6 +139,12 @@ public final class Utils {
 	}
 
 	public static final void grad_bin(final float[] rel, final float[] prd, final float[] grd) {
+		final float mul = 1.0f / rel.length;
+		for (int i = 0; i < rel.length; i++) {
+			final float ri = rel[i];
+			final float pi = acti_sigm(prd[i]);
+			grd[i] = (pi - ri) * mul;
+		}
 	}
 
 	public static final void grad_mul(final float[] rel, final float[] prd, final float[] grd, final int bat, final int cls) {
