@@ -86,8 +86,8 @@ public final class Utils {
 	public static final float loss_mse(final float[] rel, final float[] prd) {
 		float sum = 0.0f;
 		for (int i = 0; i < rel.length; i++) {
-			final float di = rel[i] - prd[i];
-			sum += di * di;
+			final float dif = rel[i] - prd[i];
+			sum += dif * dif;
 		}
 		return sum / rel.length;
 	}
@@ -119,8 +119,8 @@ public final class Utils {
 	public static final void grad_mse(final float[] rel, final float[] prd, final float[] grd) {
 		final float mul = 2.0f / rel.length;
 		for (int i = 0; i < rel.length; i++) {
-			final float di = prd[i] - rel[i];
-			grd[i] = di * mul;
+			final float dif = prd[i] - rel[i];
+			grd[i] = dif * mul;
 		}
 	}
 
