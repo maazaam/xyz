@@ -113,7 +113,26 @@ public final class Utils {
 	}
 
 	public static final float loss_mul(final float[] rel, final float[] prd, final int bat, final int cls) {
-		return 0;
+		float sum = 0.0f;
+		for (int j = 0; j < bat; j++) {
+			final int off = j * cls;
+			final int end = off + cls;
+			float max = prd[off];
+			for (int i = off + 1; i < end; i++) {
+				max = Math.max(max, prd[i]);
+			}
+			float exp = 0.0f;
+			for (int i = off; i < end; i++) {
+				exp += (float) Math.exp(prd[i] - max);
+			}
+			final float log = max + (float) Math.log(exp);
+			for (int i = off; i < end; i++) {
+				if (rel[i] > 0.0f) {
+					sum += rel[i] * (log - prd[i]);
+				}
+			}
+		}
+		return sum / bat;
 	}
 
 	public static final void grad_mse(final float[] rel, final float[] prd, final float[] grd) {
@@ -143,5 +162,23 @@ public final class Utils {
 	}
 
 	public static final void grad_mul(final float[] rel, final float[] prd, final float[] grd, final int bat, final int cls) {
+		final float mul = 1.0f / bat;
+		for (int j = 0; j < bat; j++) {
+			final int off = j * cls;
+			final int end = off + cls;
+			float max = prd[off];
+			for (int i = off + 1; i < end; i++) {
+				max = Math.max(max, prd[i]);
+			}
+			float exp = 0.0f;
+			for (int i = off; i < end; i++) {
+				exp += grd[i] = (float) Math.exp(prd[i] - max);
+			}
+			final float inv = 1.0f / exp;
+			for (int i = off; i < end; i++) {
+				final float smx = grd[i] * inv;
+				grd[i] = (smx - rel[i]) * mul;
+			}
+		}
 	}
 }
