@@ -63,13 +63,8 @@ public final class Utils {
 	}
 
 	public static final float acti_sigm(final float val) {
-		if (val >= 0.0f) {
-			final float exp = (float) Math.exp(-val);
-			return 1.0f / (1.0f + exp);
-		} else {
-			final float exp = (float) Math.exp(val);
-			return exp / (1.0f + exp);
-		}
+		final float exp = (float) Math.exp(-Math.abs(val));
+		return val >= 0.0f ? 1.0f / (1.0f + exp) : exp / (1.0f + exp);
 	}
 
 	public static final float acti_tanh(final float val) {
