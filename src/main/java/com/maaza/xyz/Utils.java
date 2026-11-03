@@ -128,8 +128,9 @@ public final class Utils {
 			}
 			final float log = max + (float) Math.log(exp);
 			for (int i = off; i < end; i++) {
-				if (rel[i] > 0.0f) {
-					sum += rel[i] * (log - prd[i]);
+				final float ri = rel[i];
+				if (ri > 0.0f) {
+					sum += ri * (log - prd[i]);
 				}
 			}
 		}
