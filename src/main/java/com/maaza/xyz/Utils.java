@@ -8,6 +8,7 @@ public final class Utils {
 
 	private static final RandomGeneratorFactory<RandomGenerator> FACT = RandomGeneratorFactory.of("L64X128MixRandom");
 	private static final float EPS1 = 1.0e-7f;
+	private static final float EPS2 = 1.0e-8f;
 
 	private Utils() {
 	}
@@ -179,6 +180,28 @@ public final class Utils {
 				final float smx = grd[i] * inv;
 				grd[i] = (smx - rel[i]) * mul;
 			}
+		}
+	}
+
+	public static final void opti_mntm(final float[] arr, final float[] grd, final float[] v, final float lr, final float bt) {
+		final float bm = 1.0f - bt;
+		for (int i = 0; i < arr.length; i++) {
+			final float vi = v[i] = bt * v[i] + bm * grd[i];
+			arr[i] -= lr * vi;
+		}
+	}
+
+	public static final void opti_adam(final float[] arr, final float[] grd, final float[] m, final float[] v, final float lr, final float b1, final float b2, final float b1t, final float b2t) {
+		final float b1m = 1.0f - b1;
+		final float b2m = 1.0f - b2;
+		final float b2s = (float) Math.sqrt(1.0f - b2t);
+		final float alp = lr * b2s / (1.0f - b1t);
+		final float eps = EPS2 * b2s;
+		for (int i = 0; i < arr.length; i++) {
+			final float gi = grd[i];
+			final float mi = m[i] = b1 * m[i] + b1m * gi;
+			final float vi = v[i] = b2 * v[i] + b2m * gi * gi;
+			arr[i] -= alp * mi / ((float) Math.sqrt(vi) + eps);
 		}
 	}
 }
