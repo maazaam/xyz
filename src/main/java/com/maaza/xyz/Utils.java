@@ -49,13 +49,13 @@ public final class Utils {
 		}
 	}
 
-	public static final void init_xavi(final float[] arr, final int row, final int col, final RandomGenerator rng) {
-		final float val = (float) Math.sqrt(6.0f / (row + col));
+	public static final void init_xavi(final float[] arr, final int in, final int out, final RandomGenerator rng) {
+		final float val = (float) Math.sqrt(6.0f / (in + out));
 		init_rndu(arr, -val, val, rng);
 	}
 
-	public static final void init_kaim(final float[] arr, final int row, final RandomGenerator rng) {
-		final float val = (float) Math.sqrt(2.0f / row);
+	public static final void init_kaim(final float[] arr, final int in, final RandomGenerator rng) {
+		final float val = (float) Math.sqrt(2.0f / in);
 		init_rndn(arr, 0.0f, val, rng);
 	}
 
@@ -113,11 +113,11 @@ public final class Utils {
 		return sum / rel.length;
 	}
 
-	public static final float loss_mul(final float[] rel, final float[] prd, final int bat, final int cls) {
+	public static final float loss_mul(final float[] rel, final float[] prd, final int baz, final int clz) {
 		float sum = 0.0f;
-		for (int j = 0; j < bat; j++) {
-			final int off = j * cls;
-			final int end = off + cls;
+		for (int j = 0; j < baz; j++) {
+			final int off = j * clz;
+			final int end = off + clz;
 			float max = prd[off];
 			for (int i = off + 1; i < end; i++) {
 				max = Math.max(max, prd[i]);
@@ -134,7 +134,7 @@ public final class Utils {
 				}
 			}
 		}
-		return sum / bat;
+		return sum / baz;
 	}
 
 	public static final void grad_mse(final float[] rel, final float[] prd, final float[] grd) {
@@ -163,11 +163,11 @@ public final class Utils {
 		}
 	}
 
-	public static final void grad_mul(final float[] rel, final float[] prd, final float[] grd, final int bat, final int cls) {
-		final float mul = 1.0f / bat;
-		for (int j = 0; j < bat; j++) {
-			final int off = j * cls;
-			final int end = off + cls;
+	public static final void grad_mul(final float[] rel, final float[] prd, final float[] grd, final int baz, final int clz) {
+		final float mul = 1.0f / baz;
+		for (int j = 0; j < baz; j++) {
+			final int off = j * clz;
+			final int end = off + clz;
 			float max = prd[off];
 			for (int i = off + 1; i < end; i++) {
 				max = Math.max(max, prd[i]);
