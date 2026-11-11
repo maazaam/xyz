@@ -128,10 +128,7 @@ public final class Utils {
 			}
 			final float log = max + (float) Math.log(exp);
 			for (int i = off; i < end; i++) {
-				final float ri = rel[i];
-				if (ri > 0.0f) {
-					sum += ri * (log - prd[i]);
-				}
+				sum += rel[i] * (log - prd[i]);
 			}
 		}
 		return sum / baz;
@@ -203,6 +200,79 @@ public final class Utils {
 			final float mi = m[i] = b1 * m[i] + b1m * gi;
 			final float vi = v[i] = b2 * v[i] + b2m * gi * gi;
 			arr[i] -= alp * mi / ((float) Math.sqrt(vi) + eps);
+		}
+	}
+
+	public static final void frwd_pass(final int in, final int out, final float[] x, final float[] y, final float[] b, final float[] w) {
+		final int baz = x.length / in;
+		for (int k = 0; k < baz; k++) {
+			final int xof = k * in;
+			final int yof = k * out;
+			for (int j = 0, wof = 0; j < out; j++, wof += in) {
+				float val = b[j];
+				for (int i = 0; i < in; i++) {
+					val += x[xof + i] * w[wof + i];
+				}
+				y[yof + j] = val;
+			}
+		}
+	}
+
+	public static final void frwd_relu(final float[] x, final float[] y) {
+		final int len = x.length;
+		for (int i = 0; i < len; i++) {
+			y[i] = acti_relu(x[i]);
+		}
+	}
+
+	public static final void frwd_sigm(final float[] x, final float[] y) {
+		final int len = x.length;
+		for (int i = 0; i < len; i++) {
+			y[i] = acti_sigm(x[i]);
+		}
+	}
+
+	public static final void frwd_tanh(final float[] x, final float[] y) {
+		final int len = x.length;
+		for (int i = 0; i < len; i++) {
+			y[i] = acti_tanh(x[i]);
+		}
+	}
+
+	public static final void bkwd_pass(final int in, final int out, final float[] x, final float[] dx, final float[] dy, final float[] db, final float[] dw, final float[] w) {
+		final int baz = dy.length / out;
+		for (int k = 0; k < baz; k++) {
+			final int xof = k * in;
+			final int yof = k * out;
+			for (int j = 0, wof = 0; j < out; j++, wof += in) {
+				final float val = dy[yof + j];
+				db[j] += val;
+				for (int i = 0; i < in; i++) {
+					dw[wof + i] += x[xof + i] * val;
+					dx[xof + i] += w[wof + i] * val;
+				}
+			}
+		}
+	}
+
+	public static final void bkwd_relu(final float[] x, final float[] dx, final float[] dy) {
+		final int len = dy.length;
+		for (int i = 0; i < len; i++) {
+			dx[i] += dy[i] * deri_relu(x[i]);
+		}
+	}
+
+	public static final void bkwd_sigm(final float[] y, final float[] dx, final float[] dy) {
+		final int len = dy.length;
+		for (int i = 0; i < len; i++) {
+			dx[i] += dy[i] * deri_sigm(y[i]);
+		}
+	}
+
+	public static final void bkwd_tanh(final float[] y, final float[] dx, final float[] dy) {
+		final int len = dy.length;
+		for (int i = 0; i < len; i++) {
+			dx[i] += dy[i] * deri_tanh(y[i]);
 		}
 	}
 }
